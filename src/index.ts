@@ -9,12 +9,14 @@ const rateLimiter = rateLimit({
   windowMs: minute,
   max: (req, resp) => {
     if (req.query.token === process.env.TOKEN) {
-      return 100;
+      return 5;
     } else {
       return 1;
     }
   },
 });
+
+app.enable("trust proxy"); /// Use if behind a proxy i.e. Cloudflare
 
 app.get("/api/status", async (req: express.Request, res: express.Response) => {
   try {
@@ -36,10 +38,6 @@ app.get(
       const payload = defaultPayload;
       const prompt = req.query.prompt;
       const negative = req.query.negative;
-      if (!prompt && !negative) {
-        res.status(400).send("Invalid Params");
-        return;
-      }
       if (prompt) {
         payload.prompt += `, ${prompt.toString().replace(" ", ", ")}`;
       }
