@@ -8,7 +8,7 @@ const app = express();
 const rateLimiter = rateLimit({
   windowMs: minute,
   max: (req, resp) => {
-    if (req.query.llama === process.env.LLAMA) {
+    if (req.query.token === process.env.TOKEN) {
       return 100;
     } else {
       return 1;
@@ -36,6 +36,10 @@ app.get(
       const payload = defaultPayload;
       const prompt = req.query.prompt;
       const negative = req.query.negative;
+      if (!prompt && !negative) {
+        res.status(400).send("Invalid Params");
+        return;
+      }
       if (prompt) {
         payload.prompt += `, ${prompt.toString().replace(" ", ", ")}`;
       }
@@ -67,6 +71,6 @@ app.get(
   }
 );
 
-app.listen(443, () => {
-  console.log("Started on port 443");
+app.listen(80, () => {
+  console.log("Started on port 80");
 });
