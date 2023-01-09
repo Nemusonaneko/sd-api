@@ -2,6 +2,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 import rateLimit from "express-rate-limit";
 import * as bodyParser from "body-parser";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
@@ -18,6 +19,11 @@ const rateLimiter = rateLimit({
     req.headers["cf-connecting-ip"]?.toString() || req.ip,
 });
 const jsonParser = bodyParser.json();
+const allowedOrigins = ["http://localhost:3000", "https://waifus.nemusona.com"];
+const options: cors.CorsOptions = {
+  origin: allowedOrigins,
+};
+app.use(cors(options));
 
 app.get("/api/status", async (req: express.Request, res: express.Response) => {
   try {
