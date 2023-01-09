@@ -2,6 +2,7 @@ import express from "express";
 import * as dotenv from "dotenv";
 import { defaultPayload, minute } from "../util/contants";
 import rateLimit from "express-rate-limit";
+import * as bodyParser from "body-parser";
 dotenv.config();
 
 const app = express();
@@ -14,9 +15,10 @@ const rateLimiter = rateLimit({
       return 1;
     }
   },
+  keyGenerator: (req, res) =>
+    req.headers["cf-connecting-ip"]?.toString() || req.ip,
 });
-
-app.enable("trust proxy"); /// Use if behind a proxy i.e. Cloudflare
+const jsonParser = bodyParser.json();
 
 app.get("/api/status", async (req: express.Request, res: express.Response) => {
   try {
@@ -30,21 +32,20 @@ app.get("/api/status", async (req: express.Request, res: express.Response) => {
   }
 });
 
-app.get(
+app.post(
   "/api/generate",
   rateLimiter,
+  jsonParser,
   async (req: express.Request, res: express.Response) => {
     try {
       const payload = defaultPayload;
-      const prompt = req.query.prompt;
-      const negative = req.query.negative;
+      const prompt = req.body.prompt;
+      const negative = req.body.negative;
       if (prompt) {
-        payload.prompt += `, ${prompt.toString().replace(" ", ", ")}`;
+        payload.prompt += `, ${prompt.toString()}`;
       }
       if (negative) {
-        payload.negative_prompt += `, ${negative
-          .toString()
-          .replace(" ", ", ")}`;
+        payload.negative_prompt += `, ${negative.toString()}`;
       }
       const generate = await fetch(`${process.env.SD}/sdapi/v1/txt2img`, {
         method: "POST",
