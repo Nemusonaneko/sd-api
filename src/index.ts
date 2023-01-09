@@ -1,16 +1,15 @@
 import express from "express";
 import * as dotenv from "dotenv";
-import { defaultPayload, minute } from "../util/contants";
 import rateLimit from "express-rate-limit";
 import * as bodyParser from "body-parser";
 dotenv.config();
 
 const app = express();
 const rateLimiter = rateLimit({
-  windowMs: minute,
+  windowMs: 30 * 1000,
   max: (req, resp) => {
     if (req.query.token === process.env.TOKEN) {
-      return 5;
+      return 10;
     } else {
       return 1;
     }
@@ -37,8 +36,15 @@ app.post(
   rateLimiter,
   jsonParser,
   async (req: express.Request, res: express.Response) => {
+    const payload = {
+      prompt: process.env.DEFAULT_PROMPTS,
+      negative_prompt: process.env.DEFAULT_NEGATIVE_PROMPTS,
+      sampler_index: process.env.DEFAULT_SAMPLER,
+      steps: process.env.DEFAULT_STEPS,
+      cfg_scale: process.env.DEFAULT_CFG_SCALE,
+      sd_model_checkpoint: process.env.DEFAULT_CHECKPOINT,
+    };
     try {
-      const payload = defaultPayload;
       const prompt = req.body.prompt;
       const negative = req.body.negative;
       if (prompt) {
