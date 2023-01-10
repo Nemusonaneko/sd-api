@@ -7,14 +7,8 @@ dotenv.config();
 
 const app = express();
 const rateLimiter = rateLimit({
-  windowMs: 30 * 1000,
-  max: (req, resp) => {
-    if (req.query.token === process.env.TOKEN) {
-      return 10;
-    } else {
-      return 1;
-    }
-  },
+  windowMs: 60 * 1000,
+  max: 10,
   keyGenerator: (req, res) =>
     req.headers["cf-connecting-ip"]?.toString() || req.ip,
 });
