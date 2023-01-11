@@ -67,6 +67,7 @@ app.post(
         res.set({ "Content-Type": "image/png" });
         res.status(200).send(buffer);
       } else {
+        console.log(res);
         res.status(500).send("Server Error");
       }
     } catch (error: any) {
