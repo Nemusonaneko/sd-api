@@ -21,10 +21,17 @@ app.use(cors(options));
 
 app.get("/api/status", async (req: express.Request, res: express.Response) => {
   try {
-    const status = await fetch(`${process.env.SD}/queue/status`, {
-      method: "GET",
-    }).then((s) => s.json());
-    return res.status(200).send(status);
+    const status: globalThis.Response = await fetch(
+      `${process.env.SD}/queue/status`,
+      {
+        method: "GET",
+      }
+    ).then((s) => s.json());
+    if (status.status === 200) {
+      return res.status(200).send(status);
+    } else {
+      return res.status(status.status).send(status.statusText);
+    }
   } catch (error: any) {
     console.log(error);
     res.status(500).send("Server Error");
@@ -67,8 +74,7 @@ app.post(
         res.set({ "Content-Type": "image/png" });
         res.status(200).send(buffer);
       } else {
-        console.log(generate);
-        res.status(500).send("Server Error");
+        res.status(generate.status).send(generate.statusText);
       }
     } catch (error: any) {
       console.log(error);
@@ -77,6 +83,4 @@ app.post(
   }
 );
 
-app.listen(80, () => {
-  
-});
+app.listen(80, () => {});
