@@ -24,7 +24,7 @@ app.get("/api/status", async (req: express.Request, res: express.Response) => {
     const status = await fetch(`${process.env.SD}/queue/status`, {
       method: "GET",
     }).then((s) => s.json());
-    return res.send(status);
+    return res.status(200).send(status);
   } catch (error: any) {
     console.log(error);
     res.status(500).send("Server Error");
@@ -65,7 +65,7 @@ app.post(
         const base64 = (await generate.json()).images[0];
         const buffer = Buffer.from(base64, "base64");
         res.set({ "Content-Type": "image/png" });
-        res.send(buffer);
+        res.status(200).send(buffer);
       } else {
         res.status(500).send("Server Error");
       }
@@ -76,6 +76,6 @@ app.post(
   }
 );
 
-app.listen(80, () => {
-  console.log("Started on port 80");
+app.listen(6969, () => {
+  console.log("Started on port 6969");
 });
