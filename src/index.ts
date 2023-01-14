@@ -5,19 +5,17 @@ import * as bodyParser from "body-parser";
 import cors from "cors";
 dotenv.config();
 
+const jsonParser = bodyParser.json();
 const app = express();
 const rateLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 10,
+  max: 5,
   keyGenerator: (req, res) =>
     req.headers["cf-connecting-ip"]?.toString() || req.ip,
 });
-const jsonParser = bodyParser.json();
-const allowedOrigins = ["http://localhost:3000", "https://waifus.nemusona.com"];
-const options: cors.CorsOptions = {
-  origin: allowedOrigins,
-};
-app.use(cors(options));
+app.enable("trust proxy");
+
+app.use(cors({ origin: "https://waifus.nemusona.com/" }));
 
 app.get("/api/status", async (req: express.Request, res: express.Response) => {
   try {
