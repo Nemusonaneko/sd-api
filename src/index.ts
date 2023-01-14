@@ -24,9 +24,10 @@ app.get("/api/status", async (req: express.Request, res: express.Response) => {
       {
         method: "GET",
       }
-    ).then((s) => s.json());
+    );
     if (status.status === 200) {
-      return res.status(200).send(status);
+      const json = await status.json();
+      return res.status(200).send(json);
     } else {
       return res.status(status.status).send(status.statusText);
     }
