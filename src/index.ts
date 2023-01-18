@@ -1,21 +1,17 @@
 import express from "express";
 import * as dotenv from "dotenv";
-import rateLimit from "express-rate-limit";
 import * as bodyParser from "body-parser";
 import cors from "cors";
 dotenv.config();
 
 const jsonParser = bodyParser.json();
 const app = express();
-const rateLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 5,
-  keyGenerator: (req, res) =>
-    req.headers["cf-connecting-ip"]?.toString() || req.ip,
-});
-app.enable("trust proxy");
 
-app.use(cors({ origin: "https://waifus.nemusona.com/" }));
+const allowedOrigins = ["waifus.nemusona.com"];
+const options: cors.CorsOptions = {
+  origin: allowedOrigins,
+};
+app.use(cors(options));
 
 app.get("/api/status", async (req: express.Request, res: express.Response) => {
   try {
@@ -39,7 +35,6 @@ app.get("/api/status", async (req: express.Request, res: express.Response) => {
 
 app.post(
   "/api/generate",
-  rateLimiter,
   jsonParser,
   async (req: express.Request, res: express.Response) => {
     const payload = {
@@ -82,4 +77,6 @@ app.post(
   }
 );
 
-app.listen(80, () => {});
+app.listen(80, () => {
+  console.log("started on port 80");
+});
